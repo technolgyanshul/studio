@@ -24,7 +24,11 @@ const GenerateCodeCommentOutputSchema = z.string().describe('A string containing
 export type GenerateCodeCommentOutput = z.infer<typeof GenerateCodeCommentOutputSchema>;
 
 export async function generateCodeComment(input: GenerateCodeCommentInput): Promise<GenerateCodeCommentOutput> {
-  return generateCodeCommentFlow(input);
+  const result = await generateCodeCommentFlow(input);
+  if (result === null) {
+    return "";
+  }
+  return result;
 }
 
 const generateCodeCommentPrompt = ai.definePrompt({
@@ -52,6 +56,10 @@ const generateCodeCommentFlow = ai.defineFlow(
     // Format the tabs into a simple string to pass to the prompt
     const formattedTabs = tabs.map(tab => `Title: ${tab.title}, URL: ${tab.url}`).join('\n');
     const result = await generateCodeCommentPrompt(formattedTabs);
+    // Handle the case where the result from the prompt is null
+    if (result === null) {
+        return "";
+    }
     return result;
   }
 );
