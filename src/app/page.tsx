@@ -3,7 +3,6 @@
 import * as React from "react";
 import type { Tab, Session } from "@/lib/types";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { MOCK_TABS } from "@/lib/mock-data";
 import { generateCodeComment } from "@/ai/flows/generate-code-comment";
 
 import { MainHeader } from "@/components/app/main-header";
@@ -18,7 +17,7 @@ const simpleId = () => Math.random().toString(36).substring(2, 9);
 
 export default function TabIntegratorPage() {
   const { toast } = useToast();
-  const [tabs] = React.useState<Tab[]>(MOCK_TABS);
+  const [tabs, setTabs] = React.useState<Tab[]>([]);
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = React.useState("");
 
@@ -133,6 +132,35 @@ export default function TabIntegratorPage() {
     }
   };
 
+  const handleScanTabs = async () => {
+    // @ts-ignore - chrome.tabs is a browser extension API
+    if (typeof chrome !== "undefined" && chrome.tabs) {
+      // @ts-ignore
+      chrome.tabs.query({}, (foundTabs: chrome.tabs.Tab[]) => {
+        const formattedTabs: Tab[] = foundTabs
+          .filter(tab => tab.id !== undefined && tab.url !== undefined && tab.title !== undefined)
+          .map((tab) => ({
+          id: tab.id!.toString(),
+          title: tab.title!,
+          url: tab.url!,
+          favIconUrl: tab.favIconUrl || `https://www.google.com/s2/favicons?sz=64&domain_url=${new URL(tab.url!).hostname}`
+        }));
+        setTabs(formattedTabs);
+        toast({
+          title: "Scan complete",
+          description: `Found ${formattedTabs.length} tabs.`,
+        });
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Browser not supported",
+        description: "This feature requires a browser extension environment.",
+      });
+    }
+  };
+
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <MainHeader />
@@ -147,6 +175,7 @@ export default function TabIntegratorPage() {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               allTabsCount={tabs.length}
+              onScanTabs={handleScanTabs}
             />
             <SessionManagement
               sessions={sessions}

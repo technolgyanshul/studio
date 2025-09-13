@@ -3,12 +3,14 @@
 import type { Tab } from "@/lib/types";
 import Image from "next/image";
 import { BookOpen, Search } from "lucide-react";
+import { ChromeTabs } from "@/components/icons";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 interface TabManagementProps {
   tabs: Tab[];
@@ -18,6 +20,7 @@ interface TabManagementProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   allTabsCount: number;
+  onScanTabs: () => void;
 }
 
 export function TabManagement({
@@ -27,16 +30,23 @@ export function TabManagement({
   onSelectAll,
   searchQuery,
   onSearchChange,
-  allTabsCount
+  allTabsCount,
+  onScanTabs,
 }: TabManagementProps) {
   const allSelected = tabs.length > 0 && selectedTabs.size === tabs.length;
 
   return (
     <Card className="flex flex-col">
       <CardHeader>
-        <CardTitle className="font-headline flex items-center gap-2">
-          <BookOpen className="text-primary" />
-          Active Browser Tabs
+        <CardTitle className="font-headline flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="text-primary" />
+            Active Browser Tabs
+          </div>
+          <Button variant="outline" size="sm" onClick={onScanTabs}>
+            <ChromeTabs className="mr-2 h-4 w-4" />
+            Scan for Tabs
+          </Button>
         </CardTitle>
         <CardDescription>
           Select tabs to export as code comments or save as a session.
@@ -59,6 +69,7 @@ export function TabManagement({
               checked={allSelected}
               onCheckedChange={(checked) => onSelectAll(Boolean(checked))}
               aria-label="Select all tabs"
+              disabled={tabs.length === 0}
             />
             <label htmlFor="select-all" className="text-sm font-medium">Select All</label>
           </div>
@@ -94,8 +105,11 @@ export function TabManagement({
               ))}
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-muted-foreground text-sm">
-              No tabs found.
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-sm p-8 text-center">
+              <ChromeTabs className="w-12 h-12 mb-4 text-primary/50" />
+              <h3 className="font-bold text-lg mb-2">No Tabs Found</h3>
+              <p>Click the &quot;Scan for Tabs&quot; button to load your currently open browser tabs.</p>
+              <p className="text-xs mt-4">(This requires browser extension permissions to function).</p>
             </div>
           )}
         </ScrollArea>
