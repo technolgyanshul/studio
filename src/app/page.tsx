@@ -4,7 +4,6 @@ import * as React from "react";
 import type { Tab, Session } from "@/lib/types";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { generateCodeComment } from "@/ai/flows/generate-code-comment";
-import { useId } from "react";
 
 import { MainHeader } from "@/components/app/main-header";
 import { TabManagement } from "@/components/app/tab-management";
@@ -25,7 +24,6 @@ export default function TabIntegratorPage() {
 
   const [generatedComment, setGeneratedComment] = React.useState("");
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const componentId = useId();
 
   const filteredTabs = React.useMemo(() => {
     return tabs.filter(
@@ -73,7 +71,7 @@ export default function TabIntegratorPage() {
       return;
     }
     const newSession: Session = {
-      id: componentId,
+      id: crypto.randomUUID(),
       name: sessionName.trim(),
       createdAt: new Date().toISOString(),
       tabs: tabs.filter((tab) => selectedTabs.has(tab.id)),
