@@ -4,15 +4,13 @@ import * as React from "react";
 import type { Tab, Session } from "@/lib/types";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { generateCodeComment } from "@/ai/flows/generate-code-comment";
+import { useId } from "react";
 
 import { MainHeader } from "@/components/app/main-header";
 import { TabManagement } from "@/components/app/tab-management";
 import { SessionManagement } from "@/components/app/session-management";
 import { CommentGenerator } from "@/components/app/comment-generator";
 import { useToast } from "@/hooks/use-toast";
-
-// A simple ID generator
-const simpleId = () => Math.random().toString(36).substring(2, 9);
 
 
 export default function TabIntegratorPage() {
@@ -26,6 +24,7 @@ export default function TabIntegratorPage() {
 
   const [generatedComment, setGeneratedComment] = React.useState("");
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const componentId = useId();
 
   const filteredTabs = React.useMemo(() => {
     return tabs.filter(
@@ -73,7 +72,7 @@ export default function TabIntegratorPage() {
       return;
     }
     const newSession: Session = {
-      id: simpleId(),
+      id: componentId,
       name: sessionName.trim(),
       createdAt: new Date().toISOString(),
       tabs: tabs.filter((tab) => selectedTabs.has(tab.id)),
@@ -133,18 +132,16 @@ export default function TabIntegratorPage() {
   };
 
   const handleScanTabs = async () => {
-    // @ts-ignore - chrome.tabs is a browser extension API
     if (typeof chrome !== "undefined" && chrome.tabs) {
-      // @ts-ignore
-      chrome.tabs.query({}, (foundTabs: chrome.tabs.Tab[]) => {
+      chrome.tabs.query({}, (foundTabs) => {
         const formattedTabs: Tab[] = foundTabs
           .filter(tab => tab.id !== undefined && tab.url !== undefined && tab.title !== undefined)
           .map((tab) => ({
-          id: tab.id!.toString(),
-          title: tab.title!,
-          url: tab.url!,
-          favIconUrl: tab.favIconUrl || `https://www.google.com/s2/favicons?sz=64&domain_url=${new URL(tab.url!).hostname}`
-        }));
+            id: tab.id!.toString(),
+            title: tab.title!,
+            url: tab.url!,
+            favIconUrl: tab.favIconUrl || `https://www.google.com/s2/favicons?sz=64&domain_url=${new URL(tab.url!).hostname}`
+          }));
         setTabs(formattedTabs);
         toast({
           title: "Scan complete",
@@ -157,15 +154,17 @@ export default function TabIntegratorPage() {
         title: "Browser not supported",
         description: "This feature requires a browser extension environment.",
       });
+      // For local development, you can use mock data:
+      // import { MOCK_TABS } from '@/lib/mock-data';
+      // setTabs(MOCK_TABS);
     }
   };
-
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <MainHeader />
-      <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
-        <div className="grid grid-cols-1 gap-8 items-start">
+      <main className="flex-1 w-full max-w-4xl mx-auto p-4 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
           <div className="flex flex-col gap-8">
             <TabManagement
               tabs={filteredTabs}
@@ -177,6 +176,8 @@ export default function TabIntegratorPage() {
               allTabsCount={tabs.length}
               onScanTabs={handleScanTabs}
             />
+          </div>
+          <div className="sticky top-8 flex flex-col gap-8">
             <SessionManagement
               sessions={sessions}
               sessionName={sessionName}
@@ -185,8 +186,6 @@ export default function TabIntegratorPage() {
               onLoadSession={handleLoadSession}
               onDeleteSession={handleDeleteSession}
             />
-          </div>
-          <div className="sticky top-8 flex flex-col">
             <CommentGenerator
               selectedTabsCount={selectedTabs.size}
               generatedComment={generatedComment}
