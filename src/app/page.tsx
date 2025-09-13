@@ -11,9 +11,8 @@ import { TabManagement } from "@/components/app/tab-management";
 import { SessionManagement } from "@/components/app/session-management";
 import { CommentGenerator } from "@/components/app/comment-generator";
 import { useToast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from 'uuid';
 
-// uuid is not in dependencies, so we can't import it. We will use a simple id generator.
+// A simple ID generator
 const simpleId = () => Math.random().toString(36).substring(2, 9);
 
 
@@ -158,7 +157,7 @@ export default function TabIntegratorPage() {
               onDeleteSession={handleDeleteSession}
             />
           </div>
-          <div className="flex flex-col sticky top-8">
+          <div className="lg:sticky top-8 flex flex-col">
             <CommentGenerator
               selectedTabsCount={selectedTabs.size}
               generatedComment={generatedComment}
