@@ -11,6 +11,7 @@ import { TabManagement } from "@/components/app/tab-management";
 import { SessionManagement } from "@/components/app/session-management";
 import { CommentGenerator } from "@/components/app/comment-generator";
 import { useToast } from "@/hooks/use-toast";
+import { MOCK_TABS } from '@/lib/mock-data';
 
 
 export default function TabIntegratorPage() {
@@ -149,14 +150,12 @@ export default function TabIntegratorPage() {
         });
       });
     } else {
-      toast({
-        variant: "destructive",
-        title: "Browser not supported",
-        description: "This feature requires a browser extension environment.",
-      });
       // For local development, you can use mock data:
-      // import { MOCK_TABS } from '@/lib/mock-data';
-      // setTabs(MOCK_TABS);
+      setTabs(MOCK_TABS);
+       toast({
+        title: "Using Mock Data",
+        description: "This is a development environment. Displaying sample tabs.",
+      });
     }
   };
 
