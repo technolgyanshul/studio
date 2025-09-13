@@ -6,8 +6,24 @@ import { generateCodeComment } from "@/ai/flows/generate-code-comment";
 
 import { MainHeader } from "@/components/app/main-header";
 import { TabManagement } from "@/components/app/tab-management";
-import { CommentGenerator } from "@/components/app/comment-generator";
+import { ExportControls } from "@/components/app/export-controls";
 import { useToast } from "@/hooks/use-toast";
+import { ExportFormat } from "@/lib/types";
+
+// Helper function to convert array of objects to CSV
+function convertToCSV(data: Tab[]) {
+  if (data.length === 0) return "";
+  const headers = "title,url,favIconUrl\n";
+  const rows = data
+    .map(
+      (tab) =>
+        `"${tab.title.replace(/"/g, '""')}","${tab.url}","${
+          tab.favIconUrl
+        }"`
+    )
+    .join("\n");
+  return headers + rows;
+}
 
 export default function TabIntegratorPage() {
   const { toast } = useToast();
@@ -15,8 +31,9 @@ export default function TabIntegratorPage() {
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  const [generatedComment, setGeneratedComment] = React.useState("");
+  const [generatedOutput, setGeneratedOutput] = React.useState("");
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [format, setFormat] = React.useState<ExportFormat>("comment");
 
   const filteredTabs = React.useMemo(() => {
     return tabs.filter(
@@ -46,27 +63,38 @@ export default function TabIntegratorPage() {
     }
   };
 
-  const handleGenerateComment = async () => {
+  const handleGenerateOutput = async () => {
     if (selectedTabs.size === 0) {
       toast({
         variant: "destructive",
         title: "No tabs selected",
-        description: "Please select tabs to generate a comment.",
+        description: "Please select tabs to generate output.",
       });
       return;
     }
     setIsGenerating(true);
-    setGeneratedComment("");
+    setGeneratedOutput("");
     try {
-      const tabsToComment = tabs.filter((tab) => selectedTabs.has(tab.id));
-      const result = await generateCodeComment(tabsToComment);
-      setGeneratedComment(result);
+      const tabsToExport = tabs.filter((tab) => selectedTabs.has(tab.id));
+      let result = "";
+      switch (format) {
+        case "comment":
+          result = await generateCodeComment(tabsToExport);
+          break;
+        case "json":
+          result = JSON.stringify(tabsToExport, null, 2);
+          break;
+        case "csv":
+          result = convertToCSV(tabsToExport);
+          break;
+      }
+      setGeneratedOutput(result);
     } catch (error) {
-      console.error("Failed to generate comment:", error);
+      console.error("Failed to generate output:", error);
       toast({
         variant: "destructive",
-        title: "AI Error",
-        description: "Could not generate comment. Please try again.",
+        title: "Error",
+        description: "Could not generate output. Please try again.",
       });
     } finally {
       setIsGenerating(false);
@@ -119,11 +147,13 @@ export default function TabIntegratorPage() {
             />
           </div>
           <div className="sticky top-8 flex flex-col gap-8">
-            <CommentGenerator
+            <ExportControls
               selectedTabsCount={selectedTabs.size}
-              generatedComment={generatedComment}
+              generatedOutput={generatedOutput}
               isGenerating={isGenerating}
-              onGenerateComment={handleGenerateComment}
+              onGenerate={handleGenerateOutput}
+              format={format}
+              onFormatChange={setFormat}
             />
           </div>
         </div>

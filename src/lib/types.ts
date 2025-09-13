@@ -4,3 +4,5 @@ export type Tab = {
   url: string;
   favIconUrl: string;
 };
+
+export type ExportFormat = "comment" | "json" | "csv";
