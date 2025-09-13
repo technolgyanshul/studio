@@ -2,7 +2,7 @@ export type Tab = {
   id: string;
   title: string;
   url: string;
-  favIconUrl: string;
+  favIconUrl?: string;
 };
 
-export type ExportFormat = "comment" | "json" | "csv";
+export type ExportFormat = "json" | "csv";

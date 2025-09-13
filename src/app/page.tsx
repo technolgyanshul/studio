@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import type { Tab } from "@/lib/types";
-import { generateCodeComment } from "@/ai/flows/generate-code-comment";
 
 import { MainHeader } from "@/components/app/main-header";
 import { TabManagement } from "@/components/app/tab-management";
@@ -25,6 +24,19 @@ function convertToCSV(data: Tab[]) {
   return headers + rows;
 }
 
+// Helper function to trigger file download
+function downloadFile(content: string, fileName: string, mimeType: string) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 export default function TabIntegratorPage() {
   const { toast } = useToast();
   const [tabs, setTabs] = React.useState<Tab[]>([]);
@@ -33,7 +45,7 @@ export default function TabIntegratorPage() {
 
   const [generatedOutput, setGeneratedOutput] = React.useState("");
   const [isGenerating, setIsGenerating] = React.useState(false);
-  const [format, setFormat] = React.useState<ExportFormat>("comment");
+  const [format, setFormat] = React.useState<ExportFormat>("json");
 
   const filteredTabs = React.useMemo(() => {
     return tabs.filter(
@@ -76,19 +88,17 @@ export default function TabIntegratorPage() {
     setGeneratedOutput("");
     try {
       const tabsToExport = tabs.filter((tab) => selectedTabs.has(tab.id));
-      let result = "";
       switch (format) {
-        case "comment":
-          result = await generateCodeComment(tabsToExport);
-          break;
         case "json":
-          result = JSON.stringify(tabsToExport, null, 2);
+          downloadFile(JSON.stringify(tabsToExport, null, 2), "tabs.json", "application/json");
+          setGeneratedOutput(JSON.stringify(tabsToExport, null, 2));
           break;
         case "csv":
-          result = convertToCSV(tabsToExport);
+           const csvContent = convertToCSV(tabsToExport);
+          downloadFile(csvContent, "tabs.csv", "text/csv");
+          setGeneratedOutput(csvContent);
           break;
       }
-      setGeneratedOutput(result);
     } catch (error) {
       console.error("Failed to generate output:", error);
       toast({
