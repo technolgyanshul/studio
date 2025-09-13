@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import type { Session } from "@/lib/types";
 import { Save, List, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -25,6 +26,15 @@ interface SessionManagementProps {
   onDeleteSession: (sessionId: string) => void;
 }
 
+function useIsClient() {
+    const [isClient, setIsClient] = React.useState(false);
+    React.useEffect(() => {
+        setIsClient(true);
+    }, []);
+    return isClient;
+}
+
+
 export function SessionManagement({
   sessions,
   sessionName,
@@ -33,6 +43,8 @@ export function SessionManagement({
   onLoadSession,
   onDeleteSession,
 }: SessionManagementProps) {
+  // By using this hook, we can conditionally render content that is safe for SSR.
+  const isClient = useIsClient();
   const sortedSessions = [...sessions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
@@ -77,7 +89,7 @@ export function SessionManagement({
                       <div onClick={() => onLoadSession(session.id)} className="flex-1 cursor-pointer">
                         <p className="font-medium">{session.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {session.tabs.length} tabs, saved {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}
+                          {session.tabs.length} tabs, saved {isClient ? formatDistanceToNow(new Date(session.createdAt), { addSuffix: true }) : "just now"}
                         </p>
                       </div>
                       <Button
