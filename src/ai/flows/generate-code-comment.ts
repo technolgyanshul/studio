@@ -44,7 +44,7 @@ const generateCodeCommentPrompt = ai.definePrompt({
 
   Tabs:
 {{#each this}}
-/// {{{this.title}}} - {{{this.url}}}
+/// [{{{this.title}}}] - [{{{this.url}}}]
 {{/each}}`,
 });
 
