@@ -33,6 +33,8 @@ export function SessionManagement({
   onLoadSession,
   onDeleteSession,
 }: SessionManagementProps) {
+  const sortedSessions = [...sessions].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
   return (
     <Card>
       <CardHeader>
@@ -64,9 +66,8 @@ export function SessionManagement({
             <DropdownMenuContent className="w-full min-w-[300px]" align="start">
               <DropdownMenuLabel>Saved Sessions ({sessions.length})</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {sessions.length > 0 ? (
-                sessions
-                  .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+              {sortedSessions.length > 0 ? (
+                sortedSessions
                   .map((session) => (
                     <DropdownMenuItem
                       key={session.id}
