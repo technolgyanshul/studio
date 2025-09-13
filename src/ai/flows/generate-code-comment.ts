@@ -34,15 +34,13 @@ const generateCodeCommentPrompt = ai.definePrompt({
   name: 'generateCodeCommentPrompt',
   input: {schema: GenerateCodeCommentInputSchema},
   output: {schema: GenerateCodeCommentOutputSchema},
-  prompt: `You are a code documentation assistant. Given a list of browser tabs with their titles and URLs, generate code comments that summarize the tabs' purpose and content.
-
-  The output must be a string formatted using triple-slash comments, such as:
+  prompt: `You are a code documentation assistant. Given a list of browser tabs, generate code comments.
+  The output must be a string formatted using triple-slash comments, like this:
 
   /// [Tab Title 1] - [URL 1]
   /// [Tab Title 2] - [URL 2]
-  /// [Tab Title 3] - [URL 3]
 
-  Tabs:
+  Here are the tabs:
 {{#each this}}
 /// [{{{this.title}}}] - [{{{this.url}}}]
 {{/each}}`,
