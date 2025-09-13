@@ -12,8 +12,10 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const TabSchema = z.object({
+  id: z.string(),
   title: z.string().describe('The title of the browser tab.'),
   url: z.string().url().describe('The URL of the browser tab.'),
+  favIconUrl: z.string().url(),
 });
 
 export type Tab = z.infer<typeof TabSchema>;
@@ -41,9 +43,9 @@ const generateCodeCommentPrompt = ai.definePrompt({
   /// [Tab Title 3] - [URL 3]
 
   Tabs:
-  {{#each this}}
-  /// {{{title}}} - {{{url}}}
-  {{/each}}`,
+{{#each this}}
+/// {{{this.title}}} - {{{this.url}}}
+{{/each}}`,
 });
 
 const generateCodeCommentFlow = ai.defineFlow(
