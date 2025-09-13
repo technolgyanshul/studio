@@ -20,7 +20,13 @@ const TabSchema = z.object({
 
 export type Tab = z.infer<typeof TabSchema>;
 
-const GenerateCodeCommentInputSchema = z.array(TabSchema).describe('An array of browser tab objects, each containing a title and URL.');
+const GenerateCodeCommentInputSchema = z.array(
+  z.object({
+    title: z.string().describe('The title of the browser tab.'),
+    url: z.string().url().describe('The URL of the browser tab.'),
+  })
+).describe('An array of browser tab objects, each containing a title and URL.');
+
 export type GenerateCodeCommentInput = z.infer<typeof GenerateCodeCommentInputSchema>;
 
 const GenerateCodeCommentOutputSchema = z.string().describe('A string containing formatted code comments representing the input tabs.');
