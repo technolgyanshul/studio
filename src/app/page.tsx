@@ -71,7 +71,7 @@ export default function TabIntegratorPage() {
       return;
     }
     const newSession: Session = {
-      id: crypto.randomUUID(),
+      id: `session-${Date.now()}`,
       name: sessionName.trim(),
       createdAt: new Date().toISOString(),
       tabs: tabs.filter((tab) => selectedTabs.has(tab.id)),
