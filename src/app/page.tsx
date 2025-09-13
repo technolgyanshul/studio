@@ -1,13 +1,11 @@
 "use client";
 
 import * as React from "react";
-import type { Tab, Session } from "@/lib/types";
-import { useLocalStorage } from "@/hooks/use-local-storage";
+import type { Tab } from "@/lib/types";
 import { generateCodeComment } from "@/ai/flows/generate-code-comment";
 
 import { MainHeader } from "@/components/app/main-header";
 import { TabManagement } from "@/components/app/tab-management";
-import { SessionManagement } from "@/components/app/session-management";
 import { CommentGenerator } from "@/components/app/comment-generator";
 import { useToast } from "@/hooks/use-toast";
 import { MOCK_TABS } from '@/lib/mock-data';
@@ -18,9 +16,6 @@ export default function TabIntegratorPage() {
   const [tabs, setTabs] = React.useState<Tab[]>([]);
   const [selectedTabs, setSelectedTabs] = React.useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = React.useState("");
-
-  const [sessions, setSessions] = useLocalStorage<Session[]>("tab-sessions", []);
-  const [sessionName, setSessionName] = React.useState("");
 
   const [generatedComment, setGeneratedComment] = React.useState("");
   const [isGenerating, setIsGenerating] = React.useState(false);
@@ -51,56 +46,6 @@ export default function TabIntegratorPage() {
     } else {
       setSelectedTabs(new Set());
     }
-  };
-
-  const handleSaveSession = () => {
-    if (!sessionName.trim()) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please enter a name for the session.",
-      });
-      return;
-    }
-    if (selectedTabs.size === 0) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Please select at least one tab to save.",
-      });
-      return;
-    }
-    const newSession: Session = {
-      id: `session-${Date.now()}`,
-      name: sessionName.trim(),
-      createdAt: new Date().toISOString(),
-      tabs: tabs.filter((tab) => selectedTabs.has(tab.id)),
-    };
-    setSessions([...sessions, newSession]);
-    setSessionName("");
-    toast({
-      title: "Success",
-      description: `Session "${newSession.name}" saved.`,
-    });
-  };
-
-  const handleLoadSession = (sessionId: string) => {
-    const session = sessions.find((s) => s.id === sessionId);
-    if (session) {
-      setSelectedTabs(new Set(session.tabs.map((tab) => tab.id)));
-      toast({
-        title: "Success",
-        description: `Session "${session.name}" loaded.`,
-      });
-    }
-  };
-
-  const handleDeleteSession = (sessionId: string) => {
-    setSessions(sessions.filter((s) => s.id !== sessionId));
-    toast({
-      title: "Success",
-      description: "Session deleted.",
-    });
   };
 
   const handleGenerateComment = async () => {
@@ -175,14 +120,6 @@ export default function TabIntegratorPage() {
             />
           </div>
           <div className="sticky top-8 flex flex-col gap-8">
-            <SessionManagement
-              sessions={sessions}
-              sessionName={sessionName}
-              onSessionNameChange={setSessionName}
-              onSaveSession={handleSaveSession}
-              onLoadSession={handleLoadSession}
-              onDeleteSession={handleDeleteSession}
-            />
             <CommentGenerator
               selectedTabsCount={selectedTabs.size}
               generatedComment={generatedComment}
