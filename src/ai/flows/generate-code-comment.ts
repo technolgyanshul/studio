@@ -11,15 +11,6 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-const TabSchema = z.object({
-  id: z.string(),
-  title: z.string().describe('The title of the browser tab.'),
-  url: z.string().url().describe('The URL of the browser tab.'),
-  favIconUrl: z.string().url(),
-});
-
-export type Tab = z.infer<typeof TabSchema>;
-
 const GenerateCodeCommentInputSchema = z.array(
   z.object({
     title: z.string().describe('The title of the browser tab.'),
@@ -38,16 +29,16 @@ export async function generateCodeComment(input: GenerateCodeCommentInput): Prom
 
 const generateCodeCommentPrompt = ai.definePrompt({
   name: 'generateCodeCommentPrompt',
-  input: {schema: GenerateCodeCommentInputSchema},
+  input: {schema: z.string()},
   output: {schema: GenerateCodeCommentOutputSchema},
   prompt: `You are a code documentation assistant.
   
-  Given the following JSON list of browser tabs, generate a block of code comments.
+  Given the following list of browser tabs, generate a block of code comments.
   Each tab should be on its own line, formatted as a triple-slash comment like this:
   /// [Tab Title] - [URL]
 
-  Here is the JSON data for the tabs:
-  {{{json this}}}
+  Here is the data for the tabs:
+  {{input}}
   `,
 });
 
@@ -57,8 +48,10 @@ const generateCodeCommentFlow = ai.defineFlow(
     inputSchema: GenerateCodeCommentInputSchema,
     outputSchema: GenerateCodeCommentOutputSchema,
   },
-  async input => {
-    const {output} = await generateCodeCommentPrompt(input);
-    return output!;
+  async (tabs) => {
+    // Format the tabs into a simple string to pass to the prompt
+    const formattedTabs = tabs.map(tab => `Title: ${tab.title}, URL: ${tab.url}`).join('\n');
+    const result = await generateCodeCommentPrompt(formattedTabs);
+    return result;
   }
 );
