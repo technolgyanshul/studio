@@ -8,8 +8,6 @@ import { MainHeader } from "@/components/app/main-header";
 import { TabManagement } from "@/components/app/tab-management";
 import { CommentGenerator } from "@/components/app/comment-generator";
 import { useToast } from "@/hooks/use-toast";
-import { MOCK_TABS } from '@/lib/mock-data';
-
 
 export default function TabIntegratorPage() {
   const { toast } = useToast();
@@ -93,11 +91,12 @@ export default function TabIntegratorPage() {
         });
       });
     } else {
-      // For local development, you can use mock data:
-      setTabs(MOCK_TABS);
-       toast({
-        title: "Using Mock Data",
-        description: "This is a development environment. Displaying sample tabs.",
+      // Instructions for running as an extension
+      toast({
+        variant: "destructive",
+        title: "This is a Chrome Extension",
+        description: "To scan real tabs, build the app and load it as an unpacked extension in Chrome.",
+        duration: 8000,
       });
     }
   };
