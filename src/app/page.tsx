@@ -138,7 +138,7 @@ export default function TabIntegratorPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <MainHeader />
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8">
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-8 items-start">
           <div className="flex flex-col gap-8">
             <TabManagement
               tabs={filteredTabs}
@@ -158,7 +158,7 @@ export default function TabIntegratorPage() {
               onDeleteSession={handleDeleteSession}
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col sticky top-8">
             <CommentGenerator
               selectedTabsCount={selectedTabs.size}
               generatedComment={generatedComment}

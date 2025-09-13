@@ -32,7 +32,7 @@ export function TabManagement({
   const allSelected = tabs.length > 0 && selectedTabs.size === tabs.length;
 
   return (
-    <Card className="h-[450px] flex flex-col">
+    <Card className="flex flex-col">
       <CardHeader>
         <CardTitle className="font-headline flex items-center gap-2">
           <BookOpen className="text-primary" />
@@ -64,8 +64,8 @@ export function TabManagement({
           </div>
           <p className="text-sm text-muted-foreground">{selectedTabs.size} of {tabs.length} selected</p>
         </div>
-      <CardContent className="p-0 flex-1">
-        <ScrollArea className="h-full">
+      <CardContent className="p-0">
+        <ScrollArea className="h-[450px]">
           {tabs.length > 0 ? (
             <div className="p-4 space-y-2">
               {tabs.map((tab) => (
